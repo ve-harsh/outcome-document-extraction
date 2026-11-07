@@ -1,21 +1,38 @@
 # Outcome Document Extraction Service
 
-**Role:** Software Developer
+**Role: Software Developer**
 
-A durable asynchronous document-extraction API for PDF, DOCX, XLSX and CSV files.
+Initial milestone: HTTP contract, PostgreSQL-backed job intake and idempotent submission. Background processing and extraction are the next milestones.
 
 ## Run
 
-1. Copy `.env.example` to `.env` and set `LLM_API_KEY`.
+1. Copy `.env.example` to `.env` and set a valid, rotated `LLM_API_KEY`.
 2. Run `docker compose up --build`.
 3. Check `http://localhost:8080/health`.
 
 ## API
 
-- `POST /jobs` — submit a document and JSON field schema as multipart form data.
-- `GET /jobs/{job_id}` — retrieve job status and, when complete, its extraction result.
-- `GET /health` — liveness check.
+- `GET /health`
+- `POST /jobs` — multipart fields `file`, `schema`, optional `webhook_url`.
+- `GET /jobs/{job_id}`
 
-## Sample evaluation
+## Sample validation
 
-Scores will be added after running `tools/validate.py` against all sample outputs.
+Once outputs are generated:
+
+```bash
+python tools/validate.py outputs/ --schema-dir sample/schemas --truth-dir sample/sample-data-output-validated
+```
+
+## Implementation checklist
+
+- [x] Required HTTP routes
+- [x] PostgreSQL-backed job records
+- [x] File type, size and schema validation
+- [x] Organization-scoped job reads
+- [x] Content/schema idempotency
+- [ ] Background workers and crash recovery
+- [ ] PDF/DOCX/XLSX/CSV parsing
+- [ ] LLM extraction and output validation
+- [ ] Webhook delivery
+- [ ] Sample-set evaluation
